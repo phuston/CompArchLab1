@@ -1,0 +1,5 @@
+Lab 1 Work Plan
+
+           Task            |  Time Estimate
+1. Make work_plan.txt      |     30 m
+2. Execute work_plan.txt   |      2 m
