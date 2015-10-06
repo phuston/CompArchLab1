@@ -1,5 +1,6 @@
 Lab 1 Work Plan
 
-           Task            |  Time Estimate
-1. Make work_plan.txt      |     30 m
-2. Execute work_plan.txt   |      2 m
+           Task                                                      | Time Estimate
+1. Design ALU, build test bench, begin simpler gate implementation   |   2h30m
+2. Finish implementation                                             |   2h00m
+3. Analyze gate delays, create writeup                               |   2h00m
