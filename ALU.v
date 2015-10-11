@@ -5,37 +5,117 @@
 `define NAND nand #10
 `define XOR xor #20
 `define XNOR xnor #20
-`define NOT32 not[31:0] #320
 
-module xOr32
-(
-    output
-)
-
-
-module arithmeticControl
-(
-    output[31:0] res,
-    output carryout, overflow, zero,
-    input[31:0] a, b,
-    input sub, carryin
-);
-
-    // b is carryin xor b
-
-    // zero is 32-bitwise-not of res
-    fullAdder32bit fadder32 (res, carryout, overflow, a, ~b, carryin);
-
+//TODO:
+//define zero flag in top level module
+//made mathControl (decoder? mux?)
+//make top level ALU Module
+module ALU();
 endmodule
 
-module fullAdder32bit
-(
-    output[31:0] sum,  // 2's complement sum of a and b
-    output carryout,  // Carry out of the summation of a and b
-    output overflow, // Overflow flag
-    input[31:0] a,     // First operand in 2's complement format
-    input[31:0] b,      // Second operand in 2's complement format);
-    input carryin
+
+module not32(output[31:0] nRes,
+             input[31:0] a
+);
+    generate
+        genvar i;
+        for (i=0; i<32; i++) begin
+            `NOT not32 (nres[i], a[i]);
+        end
+    endgenerate
+endmodule
+
+module xOr32(output[31:0] xRes,
+             output carryout, overflow,
+             input[31:0] a, b
+);
+    generate
+        genvar i;
+        for (i=0; i<32; i++) begin
+            `XOR xor32 (xres[i], a[i], b[i]);
+        end
+    endgenerate
+endmodule
+
+module and32(output[31:0] aRes,
+             output carryout, overflow,
+             input[31:0] a, b
+);
+    generate
+        genvar i;
+        for (i=0; i<32; i++) begin
+            `AND and32 (aRes[i], a[i], b[i]);
+        end
+    endgenerate
+endmodule
+
+module nand32(output[31:0] naRes,
+             output carryout, overflow,
+             input[31:0] a, b
+);
+    generate
+        genvar i;
+        for (i=0; i<32; i++) begin
+            `NAND nand32 (naRes[i], a[i], b[i]);
+        end
+    endgenerate
+endmodule
+
+module or32(output[31:0] oRes,
+             output carryout, overflow,
+             input[31:0] a, b
+);
+    generate
+        genvar i;
+        for (i=0; i<32; i++) begin
+            `OR or32 (oRes[i], a[i], b[i]);
+        end
+    endgenerate
+endmodule
+
+module nor32(output[31:0] noRes,
+             output carryout, overflow,
+             input[31:0] a, b
+);
+    generate
+        genvar i;
+        for (i=0; i<32; i++) begin
+            `NOR nor32 (noRes[i], a[i], b[i]);
+        end
+    endgenerate
+endmodule
+
+module doMath(output[31:0] res,
+              output carryout, overflow,
+              input[31:0] a, b,
+              input sub, carryin
+);
+    wire bmod;
+    xOr32 xor32 (bmod, b, sub)
+
+    fullAdder32bit fadder32 (res, carryout, overflow, a, bmod, carryin);
+endmodule
+
+module loopfullAdder32bit(output[31:0] sum,  // 2's complement sum of a and b
+                      output carryout, overflow,
+                      input[31:0] a, b     // First operand in 2's complement format
+                      input carryin
+);
+    wire [32:0] carry;
+    carry[0] = carryin;
+    generate
+        genvar i;
+        for (i=0; i<32; i++) begin
+            structuralFullAdder fadder (sum[i], carry[i+1], a[i], b[i], carry[i]);
+        end
+    endgenerate
+    carryout = carry[32];
+endmodule
+
+module fullAdder32bit(output[31:0] sum,  // 2's complement sum of a and b
+                      output carryout, overflow,
+                      input[31:0] a, b     // First operand in 2's complement format
+                      input carryin
 );
     wire carry0;
 
@@ -48,13 +128,11 @@ module fullAdder32bit
     `AND And (overflow, AxnB, BxS);
 endmodule
 
-module fullAdder16bit
-(
-    output[15:0] sum,  // 2's complement sum of a and b
-    output carryout,  // Carry out of the summation of a and b
-    input[15:0] a,     // First operand in 2's complement format
-    input[15:0] b,      // Second operand in 2's complement format);
-    input carryin
+module fullAdder16bit(output[15:0] sum,  // 2's complement sum of a and b
+                      output carryout,  // Carry out of the summation of a and b
+                      input[15:0] a,     // First operand in 2's complement format
+                      input[15:0] b,      // Second operand in 2's complement format);
+                      input carryin
 );
     wire carry0, carry1, carry2; //declare carryout bits
 
@@ -64,13 +142,11 @@ module fullAdder16bit
     FullAdder4bit adder3 (sum[15:12], carryout, a[15:12], b[15:12], carry2);
 endmodule
 
-module FullAdder4bit
-(
-    output[3:0] sum,  // 2's complement sum of a and b
-    output carryout,  // Carry out of the summation of a and b
-    input[3:0] a,     // First operand in 2's complement format
-    input[3:0] b,      // Second operand in 2's complement format
-    input carryin
+module FullAdder4bit(output[3:0] sum,  // 2's complement sum of a and b
+                     output carryout,  // Carry out of the summation of a and b
+                     input[3:0] a,     // First operand in 2's complement format
+                     input[3:0] b,      // Second operand in 2's complement format
+                     input carryin
 );
 
     wire carry0, carry1, carry2; //declare carryout bits
