@@ -21,13 +21,15 @@
 //make top level ALU Module
 
 module ALU(output[31:0] out,
-           output carryflag, overflag, zero,
+           output reg carryflag, overflag,
+           output wire zero,
            input[31:0] a, b,
            input[2:0] selector
 );
     wire[1:0] muxindex;
     wire inverse, carryin, carryout;
-    wire[31:0] result, xres, nares, nores, mathres;
+    reg[31:0] result;
+    wire[31:0] xres, nares, nores, mathres;
 
     ALUcontrolLUT controlLUT (muxindex, inverse, carryin, selector);
 
@@ -38,10 +40,10 @@ module ALU(output[31:0] out,
 
     always @(muxindex) begin
         case (muxindex)
-          1'd0:  begin result = xres; carryflag = 0; overflag = 0; end
-          1'd1:  begin result = nares; carryflag = 0; overflag = 0; end
-          1'd2:  begin result = nores; carryflag = 0; overflag = 0; end;
-          1'd3:  begin result = mathres; assign carryflag = carryout; assign overflag = overflow; end;
+          2'd0:  begin result = xres; carryflag = 0; overflag = 0; end
+          2'd1:  begin result = nares; carryflag = 0; overflag = 0; end
+          2'd2:  begin result = nores; carryflag = 0; overflag = 0; end
+          2'd3:  begin result = mathres; assign carryflag = carryout; assign overflag = overflow; end
         endcase
     end
     assign out = result;
@@ -52,12 +54,16 @@ module zeroTest(output zeroflag,
                 input[31:0] result);
     wire zerout;
     assign zerout = 1'b0;
-    generate
-        genvar z
-        for (z=0; z<32; z=z+1) begin: zeroblock
-            `OR zerOr (zerout, zerout, result[z]);
-        end
-    endgenerate
+    // generate
+    //     genvar z;
+    //     for (z=0; z<32; z=z+1) begin: zeroblock
+    //         `OR zerOr (zerout, zerout, result[z]);
+    //     end
+    // endgenerate
+    `OR zerOr(zerout, result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],
+      result[8],result[9],result[10],result[11],result[12],result[13],result[14],result[15],result[16],
+      result[17],result[18],result[19],result[20],result[21],result[22],result[23],result[24],result[25],
+      result[26],result[27],result[28],result[29],result[30],result[31]);
 endmodule
 
 module ALUcontrolLUT(output reg[1:0] muxindex,
@@ -206,18 +212,20 @@ endmodule
 
 module testALU;
     reg [31:0] a, b;
-    wire[31:0] sum;
-    wire carryout, overflow;
+    reg [2:0] selector;
+    wire[31:0] out;
+    wire carryflag, overflag, zeroflag;
 
-    // fullAdder32bit fadder32 (sum, carryout, overflow, a, b);
-    doMath mather (sum, carryout, overflow, a, b, 1'b1, 1'b1);
+    ALU alu (out, carryflag, overflag, zeroflag, a, b, selector);
 
     initial begin
         $dumpfile("testALU.vcd"); //dump info to create wave propagation later
-        $dumpvars(0, mather);
+        $dumpvars(0, alu);
 
-        a = 32'b00000000000000000000100000000010; b = 32'd1; #1500
-        $display("%b, %b, %b", sum, carryout, overflow);
+        $display("              operandA              |               operandB              |  selector  |                 output                | carryflag | overflag | zeroflag");
+
+        a = 32'b00000000000000000000000000000001; b = 32'd1; selector = 3'b000; #15000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
 
     end
 endmodule
