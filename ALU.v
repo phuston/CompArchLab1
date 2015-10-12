@@ -20,20 +20,47 @@
 //make mathControl (decoder? mux?)
 //make top level ALU Module
 
-module ALU(output[31:0] result,
-           output carryout, overflow, zero,
+module ALU(output[31:0] out,
+           output carryflag, overflag, zero,
            input[31:0] a, b,
            input[2:0] selector
 );
-    wire[2:0] muxindex;
-    wire inverse, carryin;
+    wire[1:0] muxindex;
+    wire inverse, carryin, carryout;
+    wire[31:0] result, xres, nares, nores, mathres;
 
     ALUcontrolLUT controlLUT (muxindex, inverse, carryin, selector);
 
-    xOr32
+    xOr32 xor32 (xres, a, b);
+    nAnd32 nand32 (nares, a, b, inverse);
+    nOr32 nor32 (nores, a, b, inverse);
+    doMath mather (mathres, carryout, overflow, a, b, inverse, carryin);
+
+    always @(muxindex) begin
+        case (muxindex)
+          1'd0:  begin result = xres; carryflag = 0; overflag = 0; end
+          1'd1:  begin result = nares; carryflag = 0; overflag = 0; end
+          1'd2:  begin result = nores; carryflag = 0; overflag = 0; end;
+          1'd3:  begin result = mathres; assign carryflag = carryout; assign overflag = overflow; end;
+        endcase
+    end
+    assign out = result;
+    zeroTest zertest (zero, result);
 endmodule
 
-module ALUcontrolLUT(output reg[2:0] muxindex,
+module zeroTest(output zeroflag,
+                input[31:0] result);
+    wire zerout;
+    assign zerout = 1'b0;
+    generate
+        genvar z
+        for (z=0; z<32; z=z+1) begin: zeroblock
+            `OR zerOr (zerout, zerout, result[z]);
+        end
+    endgenerate
+endmodule
+
+module ALUcontrolLUT(output reg[1:0] muxindex,
            output reg inverse,
            output reg carryin,
            input[2:0] ALUcommand);
@@ -44,10 +71,10 @@ module ALUcontrolLUT(output reg[2:0] muxindex,
           `cSUB:  begin muxindex = 0; inverse=1; carryin = 1; end
           `cSLT:  begin muxindex = 0; inverse=1; carryin = 0; end
           `cXOR:  begin muxindex = 1; inverse=0; carryin = 0; end
+          `cNAND: begin muxindex = 2; inverse=0; carryin = 0; end
           `cAND:  begin muxindex = 2; inverse=1; carryin = 0; end
-          `cNAND: begin muxindex = 3; inverse=0; carryin = 0; end
-          `cNOR:  begin muxindex = 4; inverse=0; carryin = 0; end
-          `cOR:   begin muxindex = 5; inverse=1; carryin = 0; end
+          `cNOR:  begin muxindex = 3; inverse=0; carryin = 0; end
+          `cOR:   begin muxindex = 3; inverse=1; carryin = 0; end
         endcase
     end
 endmodule
@@ -74,18 +101,7 @@ module xOr32(output[31:0] xRes,
     endgenerate
 endmodule
 
-// module and32(output[31:0] aRes,
-//              input[31:0] a, b
-// );
-//     generate
-//         genvar k;
-//         for (k=0; k<32; k=k+1) begin: andblock
-//             `AND and32 (aRes[k], a[k], b[k]);
-//         end
-//     endgenerate
-// endmodule
-
-module nand32(output[31:0] res,
+module nAnd32(output[31:0] res,
               input[31:0] a, b,
               input inverse);
 
@@ -105,18 +121,8 @@ module nand32(output[31:0] res,
 
 endmodule
 
-// module or32(output[31:0] oRes,
-//              input[31:0] a, b
-// );
-//     generate
-//         genvar m;
-//         for (m=0; m<32; m=m+1) begin: orblock
-//             `OR or32 (oRes[m], a[m], b[m]);
-//         end
-//     endgenerate
-// endmodule
 
-module nor32(output[31:0] res,
+module nOr32(output[31:0] res,
              input[31:0] a, b,
              input inverse );
 
@@ -171,7 +177,6 @@ module fullAdder32bit(output[31:0] sum,  // 2's complement sum of a and b
 
     assign carryout = carry[32];
     `XOR overflowcalc (overflow, carryout, carry[31]);
-
 endmodule
 
 module bitFullAdder(out, carryout, a, b, carryin);
@@ -185,7 +190,6 @@ module bitFullAdder(out, carryout, a, b, carryin);
 
     `XOR Sout (out, AxorB, carryin); //final gates
     `XOR Cout (carryout, AandB, fullAnd);
-
 endmodule
 
 module signExtend(signExtendedInverse, inverse);
@@ -198,7 +202,6 @@ module signExtend(signExtendedInverse, inverse);
             assign signExtendedInverse[index] = inverse;
         end
     endgenerate
-
 endmodule
 
 module testALU;
