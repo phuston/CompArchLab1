@@ -19,21 +19,35 @@
 //define zero flag in top level module
 //make mathControl (decoder? mux?)
 //make top level ALU Module
+
+module ALU(output[31:0] result,
+           output carryout, overflow, zero,
+           input[31:0] a, b,
+           input[2:0] selector
+);
+    wire[2:0] muxindex;
+    wire inverse, carryin;
+
+    ALUcontrolLUT controlLUT (muxindex, inverse, carryin, selector);
+
+    xOr32
+endmodule
+
 module ALUcontrolLUT(output reg[2:0] muxindex,
            output reg inverse,
            output reg carryin,
-           input[2:0] ALUcommand)
+           input[2:0] ALUcommand);
 
     always @(ALUcommand) begin
         case (ALUcommand)
-          `cADD:  begin muxindex = 0; inverse=0; carryin = 0; end    
+          `cADD:  begin muxindex = 0; inverse=0; carryin = 0; end
           `cSUB:  begin muxindex = 0; inverse=1; carryin = 1; end
           `cSLT:  begin muxindex = 0; inverse=1; carryin = 0; end
-          `cXOR:  begin muxindex = 1; inverse=0; carryin = 0; end    
-          `cAND:  begin muxindex = 2; inverse=0; carryin = 0; end    
+          `cXOR:  begin muxindex = 1; inverse=0; carryin = 0; end
+          `cAND:  begin muxindex = 2; inverse=1; carryin = 0; end
           `cNAND: begin muxindex = 3; inverse=0; carryin = 0; end
-          `cNOR:  begin muxindex = 4; inverse=0; carryin = 0; end    
-          `cOR:   begin muxindex = 5; inverse=0; carryin = 0; end
+          `cNOR:  begin muxindex = 4; inverse=0; carryin = 0; end
+          `cOR:   begin muxindex = 5; inverse=1; carryin = 0; end
         endcase
     end
 endmodule
@@ -74,10 +88,10 @@ endmodule
 module nand32(output[31:0] res,
               input[31:0] a, b,
               input inverse);
-    
+
     wire[31:0] nandRes;
     wire[31:0] inverseExtended;
-    
+
     generate
         genvar l;
         for (l=0; l<32; l=l+1) begin: nandblock
@@ -92,7 +106,7 @@ module nand32(output[31:0] res,
 endmodule
 
 // module or32(output[31:0] oRes,
-//              input[31:0] a, b 
+//              input[31:0] a, b
 // );
 //     generate
 //         genvar m;
@@ -135,11 +149,11 @@ module doMath(output[31:0] res,
     wire[31:0] bmod;
     xOr32 xor32 (bmod, b, paddedSub);
 
-    loopfullAdder32bit fadder32 (res, carryout, overflow, a, bmod, carryin);
+    fullAdder32bit fadder32 (res, carryout, overflow, a, bmod, carryin);
 
 endmodule
 
-module loopfullAdder32bit(output[31:0] sum,  // 2's complement sum of a and b
+module fullAdder32bit(output[31:0] sum,  // 2's complement sum of a and b
                       output carryout, overflow,
                       input[31:0] a, b,     // First operand in 2's complement format
                       input carryin
@@ -151,7 +165,7 @@ module loopfullAdder32bit(output[31:0] sum,  // 2's complement sum of a and b
     generate
         genvar o;
         for (o=0; o<32; o=o+1) begin: addblock
-            structuralFullAdder fadder (sum[o], carry[o+1], a[o], b[o], carry[o]);
+            bitFullAdder fadder (sum[o], carry[o+1], a[o], b[o], carry[o]);
         end
     endgenerate
 
@@ -160,7 +174,7 @@ module loopfullAdder32bit(output[31:0] sum,  // 2's complement sum of a and b
 
 endmodule
 
-module structuralFullAdder(out, carryout, a, b, carryin);
+module bitFullAdder(out, carryout, a, b, carryin);
     output out, carryout; //declare vars
     input a, b, carryin;
     wire AxorB, fullAnd, AandB;
@@ -185,7 +199,7 @@ module signExtend(signExtendedInverse, inverse);
         end
     endgenerate
 
-endmodule   
+endmodule
 
 module testALU;
     reg [31:0] a, b;
