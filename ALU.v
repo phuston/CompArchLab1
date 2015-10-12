@@ -6,18 +6,37 @@
 `define XOR xor #20
 `define XNOR xnor #20
 
+`define cADD  3'd0
+`define cSUB  3'd1
+`define cXOR  3'd2
+`define cSLT  3'd3
+`define cAND  3'd4
+`define cNAND 3'd5
+`define cNOR  3'd6
+`define cOR   3'd7
+
 //TODO:
 //define zero flag in top level module
 //make mathControl (decoder? mux?)
 //make top level ALU Module
-module ALU(output[31:0] result,
-           output carryout, overflow, zero,
-           input[31:0] a, b,
-           input[2:0] select);
+// module ALU(output reg[2:0] muxindex,
+//            output reg inverse,
+//            output reg carryin,
+//            input[2:0] ALUcommand)
 
-
-
-endmodule
+//     always @(ALUcommand) begin
+//         case (ALUcommand)
+//           `cADD:  begin muxindex = 0; inverse=0; carryin = 0; end    
+//           `cSUB:  begin muxindex = 0; inverse=1; carryin = 1; end
+//           `cSLT:  begin muxindex = 0; inverse=1; carryin = 0; end
+//           `cXOR:  begin muxindex = 1; inverse=0; carryin = 0; end    
+//           `cAND:  begin muxindex = 2; inverse=0; carryin = 0; end    
+//           `cNAND: begin muxindex = 3; inverse=0; carryin = 0; end
+//           `cNOR:  begin muxindex = 4; inverse=0; carryin = 0; end    
+//           `cOR:   begin muxindex = 5; inverse=0; carryin = 0; end
+//         endcase
+//     end
+// endmodule
 
 module not32(output[31:0] nRes,
              input[31:0] a
@@ -41,69 +60,83 @@ module xOr32(output[31:0] xRes,
     endgenerate
 endmodule
 
-module and32(output[31:0] aRes,
-             input[31:0] a, b
-);
-    generate
-        genvar k;
-        for (k=0; k<32; k=k+1) begin: andblock
-            `AND and32 (aRes[k], a[k], b[k]);
-        end
-    endgenerate
-endmodule
+// module and32(output[31:0] aRes,
+//              input[31:0] a, b
+// );
+//     generate
+//         genvar k;
+//         for (k=0; k<32; k=k+1) begin: andblock
+//             `AND and32 (aRes[k], a[k], b[k]);
+//         end
+//     endgenerate
+// endmodule
 
-module nand32(output[31:0] naRes,
-             input[31:0] a, b
-);
+module nand32(output[31:0] res,
+              input[31:0] a, b,
+              input inverse);
+    
+    wire[31:0] nandRes;
+    wire[31:0] inverseExtended;
+    
     generate
         genvar l;
         for (l=0; l<32; l=l+1) begin: nandblock
-            `NAND nand32 (naRes[l], a[l], b[l]);
+            `NAND nand32 (nandRes[l], a[l], b[l]);
         end
     endgenerate
+
+    signExtend invExtender(inverseExtended, inverse);
+
+    xOr32 xor32 (res, nandRes, inverseExtended);
+
 endmodule
 
-module or32(output[31:0] oRes,
-             input[31:0] a, b
-);
-    generate
-        genvar m;
-        for (m=0; m<32; m=m+1) begin: orblock
-            `OR or32 (oRes[m], a[m], b[m]);
-        end
-    endgenerate
-endmodule
+// module or32(output[31:0] oRes,
+//              input[31:0] a, b 
+// );
+//     generate
+//         genvar m;
+//         for (m=0; m<32; m=m+1) begin: orblock
+//             `OR or32 (oRes[m], a[m], b[m]);
+//         end
+//     endgenerate
+// endmodule
 
-module nor32(output[31:0] noRes,
-             input[31:0] a, b
-);
+module nor32(output[31:0] res,
+             input[31:0] a, b,
+             input inverse );
+
+    wire[31:0] norRes;
+    wire[31:0] inverseExtended;
+
     generate
         genvar n;
         for (n=0; n<32; n=n+1) begin: norblock
-            `NOR nor32 (noRes[n], a[n], b[n]);
+            `NOR nor32 (norRes[n], a[n], b[n]);
         end
     endgenerate
+
+    signExtend invExtender(inverseExtended, inverse);
+
+    xOr32 xor32 (res, norRes, inverseExtended);
+
 endmodule
 
 module doMath(output[31:0] res,
               output carryout, overflow,
               input[31:0] a, b,
-              input sub, carryin
+              input inverse, carryin
 );
 
     wire[31:0] paddedSub;
 
-    generate
-        genvar index;
-        for (index=0; index<32; index=index+1) begin: subpad
-            assign paddedSub[index] = sub;
-        end
-    endgenerate
+    signExtend extender(paddedSub, inverse);
 
     wire[31:0] bmod;
     xOr32 xor32 (bmod, b, paddedSub);
 
     loopfullAdder32bit fadder32 (res, carryout, overflow, a, bmod, carryin);
+
 endmodule
 
 module loopfullAdder32bit(output[31:0] sum,  // 2's complement sum of a and b
@@ -124,52 +157,8 @@ module loopfullAdder32bit(output[31:0] sum,  // 2's complement sum of a and b
 
     assign carryout = carry[32];
     `XOR overflowcalc (overflow, carryout, carry[31]);
+
 endmodule
-
-// module fullAdder32bit(output[31:0] sum,  // 2's complement sum of a and b
-//                       output carryout, overflow,
-//                       input[31:0] a, b,     // First operand in 2's complement format
-//                       input carryin
-// );
-//     wire carry0;
-
-//     fullAdder16bit adder0 (sum[15:0], carry0, a[15:0], b[15:0], carryin);
-//     fullAdder16bit adder1 (sum[31:16], carryout, a[31:16], b[31:16], carry0);
-
-//     wire AxnB, BxS; //declare wires for overflow checking
-//     `XNOR Xnor (AxnB, a[31], b[31]); //Overflow: A == B and S !== B
-//     `XOR Xor (BxS, b[31], sum[31]);
-//     `AND And (overflow, AxnB, BxS);
-// endmodule
-
-// module fullAdder16bit(output[15:0] sum,  // 2's complement sum of a and b
-//                       output carryout,  // Carry out of the summation of a and b
-//                       input[15:0] a,     // First operand in 2's complement format
-//                       input[15:0] b,      // Second operand in 2's complement format);
-//                       input carryin
-// );
-//     wire carry0, carry1, carry2; //declare carryout bits
-
-//     FullAdder4bit adder0 (sum[3:0], carry0, a[3:0], b[3:0], carryin);
-//     FullAdder4bit adder1 (sum[7:4], carry1, a[7:4], b[7:4], carry0);
-//     FullAdder4bit adder2 (sum[11:8], carry2, a[11:8], b[11:8], carry1);
-//     FullAdder4bit adder3 (sum[15:12], carryout, a[15:12], b[15:12], carry2);
-// endmodule
-
-// module FullAdder4bit(output[3:0] sum,  // 2's complement sum of a and b
-//                      output carryout,  // Carry out of the summation of a and b
-//                      input[3:0] a,     // First operand in 2's complement format
-//                      input[3:0] b,      // Second operand in 2's complement format
-//                      input carryin
-// );
-
-//     wire carry0, carry1, carry2; //declare carryout bits
-
-//     structuralFullAdder adder0 (sum[0], carry0, a[0], b[0], carryin); //declare 4 adders we use
-//     structuralFullAdder adder1 (sum[1], carry1, a[1], b[1], carry0);
-//     structuralFullAdder adder2 (sum[2], carry2, a[2], b[2], carry1);
-//     structuralFullAdder adder3 (sum[3], carryout, a[3], b[3], carry2);
-// endmodule
 
 module structuralFullAdder(out, carryout, a, b, carryin);
     output out, carryout; //declare vars
@@ -182,7 +171,21 @@ module structuralFullAdder(out, carryout, a, b, carryin);
 
     `XOR Sout (out, AxorB, carryin); //final gates
     `XOR Cout (carryout, AandB, fullAnd);
+
 endmodule
+
+module signExtend(signExtendedInverse, inverse);
+    output[31:0] signExtendedInverse;
+    input inverse;
+
+    generate
+        genvar index;
+        for (index=0; index<32; index=index+1) begin: subpad
+            assign signExtendedInverse[index] = inverse;
+        end
+    endgenerate
+
+endmodule   
 
 module testALU;
     reg [31:0] a, b;
@@ -190,13 +193,13 @@ module testALU;
     wire carryout, overflow;
 
     // fullAdder32bit fadder32 (sum, carryout, overflow, a, b);
-    doMath mather (sum, carryout, overflow, a, b, 1'b0, 1'b0);
+    doMath mather (sum, carryout, overflow, a, b, 1'b1, 1'b1);
 
     initial begin
         $dumpfile("testALU.vcd"); //dump info to create wave propagation later
         $dumpvars(0, mather);
 
-        a = 32'b00000000000000000000000000000001; b = 32'd1; #1500
+        a = 32'b00000000000000000000100000000010; b = 32'd1; #1500
         $display("%b, %b, %b", sum, carryout, overflow);
 
     end

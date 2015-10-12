@@ -14,19 +14,24 @@ module behavioralMultiplexer(out, address0, address1, in0,in1,in2,in3);
 	assign out = inputs[address];
 endmodule
 
-module structuralMultiplexer(out, address0,address1, in0,in1,in2,in3);
+module structuralMultiplexer(out, address0,address1,address2,in0,in1,in2,in3,in4,in5,in6,in7);
 	output out; //declare vars
 	input address0, address1;
-	input in0, in1, in2, in3;
-	wire nA0, nA1, and0, and1, and2, and3;
+	input[31:0] in0, in1, in2, in3, in4, in5, in6, in7;
+	wire nA0, nA1, nA2, and0, and1, and2, and3, and4, and5, and6, and7;
 
 	`NOT nadd0 (nA0, address0); //NOTs
 	`NOT nadd1 (nA1, address1);
+	`NOT nadd2 (nA2, address2);
 
-	`AND an0 (and0, nA0,nA1,in0); //selector gates
+	`AND an0 (and0, nA0,nA1,nA2,in0); //selector gates
 	`AND an1 (and1, address0,nA1,in1);
 	`AND an2 (and2, nA0,address1,in2);
 	`AND an3 (and3, address0,address1,in3);
+	`AND an4 (and4, );
+	`AND an5 (and5);
+	`AND an6 (and6);
+	`AND an7 (and7);
 
 	`OR orOut (out, and0,and1,and2,and3); //final gate
 endmodule
