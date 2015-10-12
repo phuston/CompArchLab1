@@ -1,4 +1,4 @@
             Task              |     Work Begin   |   Work End
---------------------------------------------------------------------------------
-Construct ADD SUB SLT         |  3:30PM 10.9.15  |  4:20PM (ADD)  5:00 (SUB)  
+--------------------------------------------------------------------------------------
+Construct ADD SUB SLT         |  3:30PM 10.9.15  |  4:20PM (ADD)  5:00 (SUB) 5:20 (SLT) 
 Construct AND NAND OR NOR XOR |  5:20PM 10.9.15  |  5:40PM (AND NAND OR NOR XOR)
