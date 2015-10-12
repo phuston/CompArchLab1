@@ -8,74 +8,79 @@
 
 //TODO:
 //define zero flag in top level module
-//made mathControl (decoder? mux?)
+//make mathControl (decoder? mux?)
 //make top level ALU Module
-module ALU();
-endmodule
+module ALU(output[31:0] result,
+           output carryout, overflow, zero,
+           input[31:0] a, b,
+           input[2:0] select);
 
+
+
+endmodule
 
 module not32(output[31:0] nRes,
              input[31:0] a
 );
     generate
         genvar i;
-        for (i=0; i<32; i=i+1) begin
+        for (i=0; i<32; i=i+1) begin: notblock
             `NOT not32 (nRes[i], a[i]);
         end
     endgenerate
 endmodule
 
 module xOr32(output[31:0] xRes,
-             output carryout, overflow,
              input[31:0] a, b
 );
     generate
-        for (i=0; i<32; i=i+1) begin
-            `XOR xor32 (xRes[i], a[i], b[i]);
+        genvar j;
+        for (j=0; j<32; j=j+1) begin: xorblock
+            `XOR xor32 (xRes[j], a[j], b[j]);
         end
     endgenerate
 endmodule
 
 module and32(output[31:0] aRes,
-             output carryout, overflow,
              input[31:0] a, b
 );
     generate
-        for (i=0; i<32; i=i+1) begin
-            `AND and32 (aRes[i], a[i], b[i]);
+        genvar k;
+        for (k=0; k<32; k=k+1) begin: andblock
+            `AND and32 (aRes[k], a[k], b[k]);
         end
     endgenerate
 endmodule
 
 module nand32(output[31:0] naRes,
-             output carryout, overflow,
              input[31:0] a, b
 );
     generate
-        for (i=0; i<32; i=i+1) begin
-            `NAND nand32 (naRes[i], a[i], b[i]);
+        genvar l;
+        for (l=0; l<32; l=l+1) begin: nandblock
+            `NAND nand32 (naRes[l], a[l], b[l]);
         end
     endgenerate
 endmodule
 
 module or32(output[31:0] oRes,
-             output carryout, overflow,
              input[31:0] a, b
 );
     generate
-        for (i=0; i<32; i=i+1) begin
-            `OR or32 (oRes[i], a[i], b[i]);
+        genvar m;
+        for (m=0; m<32; m=m+1) begin: orblock
+            `OR or32 (oRes[m], a[m], b[m]);
         end
     endgenerate
 endmodule
 
 module nor32(output[31:0] noRes,
-             output carryout, overflow,
              input[31:0] a, b
 );
     generate
-        for (i=0; i<32; i=i+1) begin
-            `NOR nor32 (noRes[i], a[i], b[i]);
+        genvar n;
+        for (n=0; n<32; n=n+1) begin: norblock
+            `NOR nor32 (noRes[n], a[n], b[n]);
         end
     endgenerate
 endmodule
@@ -85,30 +90,45 @@ module doMath(output[31:0] res,
               input[31:0] a, b,
               input sub, carryin
 );
-    wire bmod;
-    xOr32 xor32 (bmod, b, sub)
 
-    loopfullAdder32bit fadder32 (res, carryout, overflow, a, bmod, sub, carryin);
+    wire[31:0] paddedSub;
+
+    generate
+        genvar index;
+        for (index=0; index<32; index=index+1) begin: subpad
+            assign paddedSub[index] = sub;
+        end
+    endgenerate
+
+    wire[31:0] bmod;
+    xOr32 xor32 (bmod, b, paddedSub);
+
+    loopfullAdder32bit fadder32 (res, carryout, overflow, a, bmod, carryin);
 endmodule
 
 module loopfullAdder32bit(output[31:0] sum,  // 2's complement sum of a and b
-                          output carryout, overflow,
-                          input[31:0] a, b     // First operand in 2's complement format
-                          input carryin
+                      output carryout, overflow,
+                      input[31:0] a, b,     // First operand in 2's complement format
+                      input carryin
 );
+
     wire [32:0] carry;
-    carry[0] = carryin;
+    assign carry[0] = carryin;
+
     generate
-        for (i=0; i<32; i=i+1) begin
-            structuralFullAdder fadder (sum[i], carry[i+1], a[i], b[i], carry[i]);
+        genvar o;
+        for (o=0; o<32; o=o+1) begin: addblock
+            structuralFullAdder fadder (sum[o], carry[o+1], a[o], b[o], carry[o]);
         end
     endgenerate
-    carryout = carry[32];
+
+    assign carryout = carry[32];
+    `XOR overflowcalc (overflow, carryout, carry[31]);
 endmodule
 
 // module fullAdder32bit(output[31:0] sum,  // 2's complement sum of a and b
 //                       output carryout, overflow,
-//                       input[31:0] a, b     // First operand in 2's complement format
+//                       input[31:0] a, b,     // First operand in 2's complement format
 //                       input carryin
 // );
 //     wire carry0;
@@ -164,19 +184,19 @@ module structuralFullAdder(out, carryout, a, b, carryin);
     `XOR Cout (carryout, AandB, fullAnd);
 endmodule
 
-module test32badder;
+module testALU;
     reg [31:0] a, b;
     wire[31:0] sum;
     wire carryout, overflow;
 
     // fullAdder32bit fadder32 (sum, carryout, overflow, a, b);
-    subtractor32bit factor32 (sum, carryout, overflow, a, b);
+    doMath mather (sum, carryout, overflow, a, b, 1'b0, 1'b0);
 
     initial begin
-        $dumpfile("4badder.vcd"); //dump info to create wave propagation later
-        $dumpvars(0, test32badder);
+        $dumpfile("testALU.vcd"); //dump info to create wave propagation later
+        $dumpvars(0, mather);
 
-        a = 32'b10000000000000000000000000000000; b = 32'd1; #1500
+        a = 32'b00000000000000000000000000000001; b = 32'd1; #1500
         $display("%b, %b, %b", sum, carryout, overflow);
 
     end
