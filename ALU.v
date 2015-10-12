@@ -19,24 +19,24 @@
 //define zero flag in top level module
 //make mathControl (decoder? mux?)
 //make top level ALU Module
-// module ALU(output reg[2:0] muxindex,
-//            output reg inverse,
-//            output reg carryin,
-//            input[2:0] ALUcommand)
+module ALUcontrolLUT(output reg[2:0] muxindex,
+           output reg inverse,
+           output reg carryin,
+           input[2:0] ALUcommand)
 
-//     always @(ALUcommand) begin
-//         case (ALUcommand)
-//           `cADD:  begin muxindex = 0; inverse=0; carryin = 0; end    
-//           `cSUB:  begin muxindex = 0; inverse=1; carryin = 1; end
-//           `cSLT:  begin muxindex = 0; inverse=1; carryin = 0; end
-//           `cXOR:  begin muxindex = 1; inverse=0; carryin = 0; end    
-//           `cAND:  begin muxindex = 2; inverse=0; carryin = 0; end    
-//           `cNAND: begin muxindex = 3; inverse=0; carryin = 0; end
-//           `cNOR:  begin muxindex = 4; inverse=0; carryin = 0; end    
-//           `cOR:   begin muxindex = 5; inverse=0; carryin = 0; end
-//         endcase
-//     end
-// endmodule
+    always @(ALUcommand) begin
+        case (ALUcommand)
+          `cADD:  begin muxindex = 0; inverse=0; carryin = 0; end    
+          `cSUB:  begin muxindex = 0; inverse=1; carryin = 1; end
+          `cSLT:  begin muxindex = 0; inverse=1; carryin = 0; end
+          `cXOR:  begin muxindex = 1; inverse=0; carryin = 0; end    
+          `cAND:  begin muxindex = 2; inverse=0; carryin = 0; end    
+          `cNAND: begin muxindex = 3; inverse=0; carryin = 0; end
+          `cNOR:  begin muxindex = 4; inverse=0; carryin = 0; end    
+          `cOR:   begin muxindex = 5; inverse=0; carryin = 0; end
+        endcase
+    end
+endmodule
 
 module not32(output[31:0] nRes,
              input[31:0] a
