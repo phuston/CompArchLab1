@@ -234,7 +234,7 @@ module testALU;
         $dumpvars(0, alu);
 
         $display("              operandA              |               operandB              |  selector  |                 output                | carryflag | overflag | zeroflag");
-
+        $display("----------------------------------------------------------------------------------------------------------------------------------------------------------------");
         //Addition Tests
         $display("                                                  ----------Addition Tests----------");
         $display("                                                           ---Simple Addition---");
