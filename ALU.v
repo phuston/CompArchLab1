@@ -223,11 +223,6 @@ module testALU;
     wire carryflag, overflag, zeroflag;
 
     ALU alu (out, carryflag, overflag, zeroflag, a, b, selector);
-    // doMath mather(out, carryflag, overflag, a, b, 1'b1, 1'b1);
-
-    // SLT slt (out, carryflag,z overflag, a, b);
-
-    // xOr32 xor32 (out, a, b);
 
     initial begin
         $dumpfile("testALU.vcd"); //dump info to create wave propagation later
@@ -259,22 +254,41 @@ module testALU;
 
         //AND Tests
         $display("----------AND Tests----------");
-        a = 32'b1; b = 32'b1; selector = 3'b100; #3000
+        a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b100; #3000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        a = 32'b11111111111111110000000000000000; b = 32'b11111111111111110000000000000000; selector = 3'b100; #3000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        a = 32'b11010100101000101110011100010010; b = 32'b00101001100101001010111001001011; selector = 3'b100; #3000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+
 
         //NAND Tests
         $display("----------NAND Tests----------");
-        a = 32'b0; b = 32'b1; selector = 3'b101; #3000
+        a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b101; #3000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        a = 32'b11111111111111110000000000000000; b = 32'b11111111111111110000000000000000; selector = 3'b101; #3000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        a = 32'b11010100101000101110011100010010; b = 32'b00101001100101001010111001001011; selector = 3'b101; #3000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+
 
         // NOR Tests
         $display("----------OR Tests----------");
-        a = 32'b0; b = 32'b1; selector = 3'b110; #3000
+        a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b110; #3000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        a = 32'b11111111111111110000000000000000; b = 32'b00000000000000001111111111111111; selector = 3'b110; #3000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        a = 32'b11010100101000101110011100010010; b = 32'b00101001100101001010111001001011; selector = 3'b110; #3000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
 
         //OR Tests
         $display("----------NOR Tests----------");
-        a = 32'b0; b = 32'b1; selector = 3'b111; #3000
+        $display("----------OR Tests----------");
+        a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b111; #3000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        a = 32'b11111111111111110000000000000000; b = 32'b00000000000000001111111111111111; selector = 3'b111; #3000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        a = 32'b11010100101000101110011100010010; b = 32'b00101001100101001010111001001011; selector = 3'b111; #3000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
 
     end
