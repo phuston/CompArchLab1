@@ -5,7 +5,10 @@
 
 	In the process of implementing our ALU, we made several interesting design choices to improve efficiency, speed, and decrease the area of the unit.
 
-	- Interesting choices
+	- Our LUTcontrol module takes in a 3-bit selector value and outputs 3 wires: an inverse, carryin, and muxIndex (which controls our large multiplexor's output).
+		> The inverse output controls the 'Math' module's switching between addition, subtraction, and slt, as well as our bitwise nand and nor gates to and and or gates
+	- Constructing a 'Math' module to implement both addition and subtraction, as well part of the 'Simple-Less-Than' module
+	- Handling and
 
 	![A block diagram of our ALU's main components](ALUDiagram.png)
 	- Block diagrams of all ALU components.

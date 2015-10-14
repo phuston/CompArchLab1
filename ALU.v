@@ -41,9 +41,9 @@ module ALU(output[31:0] out,
 
     always @(muxindex) begin
         case (muxindex)
-          3'd0:  begin assign result = xres; carryflag = 0; overflag = 0; end
-          3'd1:  begin assign result = nares; carryflag = 0; overflag = 0; end
-          3'd2:  begin assign result = nores; carryflag = 0; overflag = 0; end
+          3'd0:  begin assign result = xres; assign carryflag = 0; assign overflag = 0; end
+          3'd1:  begin assign result = nares; assign carryflag = 0; assign overflag = 0; end
+          3'd2:  begin assign result = nores; assign carryflag = 0; assign overflag = 0; end
           3'd3:  begin assign result = mathres; assign carryflag = carryout; assign overflag = overflow; end
           3'd4:  begin assign result = sltres; assign carryflag = 0; assign overflag = overflow; end
         endcase
