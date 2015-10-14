@@ -26,7 +26,7 @@ module ALU(output[31:0] out,
            input[31:0] a, b,
            input[2:0] selector
 );
-    wire[1:0] muxindex;
+    wire[2:0] muxindex;
     wire inverse, carryin, carryout;
     reg[31:0] result;
     wire[31:0] xres, nares, nores, mathres, sltres;
@@ -62,7 +62,7 @@ module zeroTest(output zeroflag,
 
 endmodule
 
-module ALUcontrolLUT(output reg[1:0] muxindex,
+module ALUcontrolLUT(output reg[2:0] muxindex,
            output reg inverse,
            output reg carryin,
            input[2:0] ALUcommand);
@@ -222,36 +222,60 @@ module testALU;
     wire[31:0] out;
     wire carryflag, overflag, zeroflag;
 
-    // ALU alu (out, carryflag, overflag, zeroflag, a, b, selector);
-    // doMath mather(out, carryflag, overflag, a, b, 1'b0, 1'b0);
+    ALU alu (out, carryflag, overflag, zeroflag, a, b, selector);
+    // doMath mather(out, carryflag, overflag, a, b, 1'b1, 1'b1);
 
-    SLT slt (out, carryflag, overflag, a, b);
+    // SLT slt (out, carryflag,z overflag, a, b);
+
+    // xOr32 xor32 (out, a, b);
 
     initial begin
         $dumpfile("testALU.vcd"); //dump info to create wave propagation later
-        // $dumpvars(0, alu);
+        $dumpvars(0, alu);
 
         $display("              operandA              |               operandB              |  selector  |                 output                | carryflag | overflag | zeroflag");
-        a = 32'd2147483647; b = 32'd2147483647; #300000
+        
+        //Addition Tests
+        $display("----------Addition Tests----------");
+        a = 32'b0; b = 32'b1; selector = 3'b000; #3000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b10000000000000000000000000000000; b = 32'b10000000000000000000000000000000; #300000
-        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b1; b = 32'b10000000000000000000000000000000; #300000
+        a = 32'd10; b = 32'd1; selector = 3'b000; #3000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
 
+        //Subtraction Tests
+        $display("----------Subtraction Tests----------");
+        a = 32'b0; b = 32'b1; selector = 3'b001; #3000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
 
-        // a = 32'd4; b = 32'd2; selector = 3'b011; #1500
-        // $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        // a = 32'd102; b = 32'd7; selector = 3'b011; #1500
-        // $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        // a = 32'd1; b = 32'b10000000000000000000000000000001; selector = 3'b011; #1500
-        // $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        // a = 32'd4; b = 32'd2; selector = 3'b001; #1500
-        // $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        // a = 32'd102; b = 32'd7; selector = 3'b001; #1500
-        // $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        // a = 32'd1; b = 32'b10000000000000000000000000000001; selector = 3'b001; #1500
-        // $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        //XOR Tests
+        $display("----------XOR Tests----------");
+        a = 32'b1; b = 32'b1; selector = 3'b010; #3000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+
+        //SLT Tests
+        $display("----------SLT Tests----------");
+        a = 32'd2; b = 32'b1; selector = 3'b011; #3000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+
+        //AND Tests
+        $display("----------AND Tests----------");
+        a = 32'b1; b = 32'b1; selector = 3'b100; #3000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+
+        //NAND Tests
+        $display("----------NAND Tests----------");
+        a = 32'b0; b = 32'b1; selector = 3'b101; #3000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+
+        // NOR Tests
+        $display("----------OR Tests----------");
+        a = 32'b0; b = 32'b1; selector = 3'b110; #3000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+
+        //OR Tests
+        $display("----------NOR Tests----------");
+        a = 32'b0; b = 32'b1; selector = 3'b111; #3000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
 
     end
 endmodule
