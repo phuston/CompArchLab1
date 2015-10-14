@@ -69,14 +69,14 @@ module ALUcontrolLUT(output reg[2:0] muxindex,
 
     always @(ALUcommand) begin
         case (ALUcommand)
-          `cXOR:  begin muxindex = 3'd0; inverse=0; carryin = 0; end
-          `cNAND: begin muxindex = 3'd1; inverse=0; carryin = 0; end
-          `cAND:  begin muxindex = 3'd1; inverse=1; carryin = 0; end
-          `cNOR:  begin muxindex = 3'd2; inverse=0; carryin = 0; end
-          `cOR:   begin muxindex = 3'd2; inverse=1; carryin = 0; end
-          `cADD:  begin muxindex = 3'd3; inverse=0; carryin = 0; end
-          `cSUB:  begin muxindex = 3'd3; inverse=1; carryin = 1; end
-          `cSLT:  begin muxindex = 3'd4; inverse=1; carryin = 0; end
+          `cXOR:  begin assign muxindex = 3'd0; assign inverse=0; assign carryin = 0; end
+          `cNAND: begin assign muxindex = 3'd1; assign inverse=0; assign carryin = 0; end
+          `cAND:  begin assign muxindex = 3'd1; assign inverse=1; assign carryin = 0; end
+          `cNOR:  begin assign muxindex = 3'd2; assign inverse=0; assign carryin = 0; end
+          `cOR:   begin assign muxindex = 3'd2; assign inverse=1; assign carryin = 0; end
+          `cADD:  begin assign muxindex = 3'd3; assign inverse=0; assign carryin = 0; end
+          `cSUB:  begin assign muxindex = 3'd3; assign inverse=1; assign carryin = 1; end
+          `cSLT:  begin assign muxindex = 3'd4; assign inverse=1; assign carryin = 0; end
         endcase
     end
 endmodule
