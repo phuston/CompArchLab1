@@ -7,7 +7,7 @@
 
 	- Interesting choices
 
-	![A block diagram of our ALU's main components][ALUDiagram.png]
+	![A block diagram of our ALU's main components(ALUDiagram.png)
 	- Block diagrams of all ALU components.
 
 2. Test Results
