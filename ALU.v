@@ -29,7 +29,7 @@ module ALU(output[31:0] out,
     wire[1:0] muxindex;
     wire inverse, carryin, carryout;
     reg[31:0] result;
-    wire[31:0] xres, nares, nores, mathres;
+    wire[31:0] xres, nares, nores, mathres, sltres;
 
     ALUcontrolLUT controlLUT (muxindex, inverse, carryin, selector);
 
@@ -37,13 +37,15 @@ module ALU(output[31:0] out,
     nAnd32 nand32 (nares, a, b, inverse);
     nOr32 nor32 (nores, a, b, inverse);
     doMath mather (mathres, carryout, overflow, a, b, inverse, carryin);
+    SLT slt (sltres, carryout, overflow, a, b);
 
     always @(muxindex) begin
         case (muxindex)
-          2'd0:  begin assign result = xres; carryflag = 0; overflag = 0; end
-          2'd1:  begin assign result = nares; carryflag = 0; overflag = 0; end
-          2'd2:  begin assign result = nores; carryflag = 0; overflag = 0; end
-          2'd3:  begin assign result = mathres; assign carryflag = carryout; assign overflag = overflow; end
+          3'd0:  begin assign result = xres; carryflag = 0; overflag = 0; end
+          3'd1:  begin assign result = nares; carryflag = 0; overflag = 0; end
+          3'd2:  begin assign result = nores; carryflag = 0; overflag = 0; end
+          3'd3:  begin assign result = mathres; assign carryflag = carryout; assign overflag = overflow; end
+          3'd4:  begin assign result = sltres; assign carryflag = 0; assign overflag = overflow; end
         endcase
     end
     assign out = result;
@@ -52,18 +54,12 @@ endmodule
 
 module zeroTest(output zeroflag,
                 input[31:0] result);
-    // wire zerout;
-    // assign zerout = 1'b0;
-    // generate
-    //     genvar z;
-    //     for (z=0; z<32; z=z+1) begin: zeroblock
-    //         `OR zerOr (zerout, zerout, result[z]);
-    //     end
-    // endgenerate
+
     `NOR zerOr(zeroflag, result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],
       result[8],result[9],result[10],result[11],result[12],result[13],result[14],result[15],result[16],
       result[17],result[18],result[19],result[20],result[21],result[22],result[23],result[24],result[25],
       result[26],result[27],result[28],result[29],result[30],result[31]);
+
 endmodule
 
 module ALUcontrolLUT(output reg[1:0] muxindex,
@@ -73,14 +69,14 @@ module ALUcontrolLUT(output reg[1:0] muxindex,
 
     always @(ALUcommand) begin
         case (ALUcommand)
-          `cADD:  begin muxindex = 3; inverse=0; carryin = 0; end
-          `cSUB:  begin muxindex = 3; inverse=1; carryin = 1; end
-          `cSLT:  begin muxindex = 3; inverse=1; carryin = 0; end
-          `cXOR:  begin muxindex = 0; inverse=0; carryin = 0; end
-          `cNAND: begin muxindex = 1; inverse=0; carryin = 0; end
-          `cAND:  begin muxindex = 1; inverse=1; carryin = 0; end
-          `cNOR:  begin muxindex = 2; inverse=0; carryin = 0; end
-          `cOR:   begin muxindex = 2; inverse=1; carryin = 0; end
+          `cXOR:  begin muxindex = 3'd0; inverse=0; carryin = 0; end
+          `cNAND: begin muxindex = 3'd1; inverse=0; carryin = 0; end
+          `cAND:  begin muxindex = 3'd1; inverse=1; carryin = 0; end
+          `cNOR:  begin muxindex = 3'd2; inverse=0; carryin = 0; end
+          `cOR:   begin muxindex = 3'd2; inverse=1; carryin = 0; end
+          `cADD:  begin muxindex = 3'd3; inverse=0; carryin = 0; end
+          `cSUB:  begin muxindex = 3'd3; inverse=1; carryin = 1; end
+          `cSLT:  begin muxindex = 3'd4; inverse=1; carryin = 0; end
         endcase
     end
 endmodule
@@ -148,11 +144,21 @@ module nOr32(output[31:0] res,
 
 endmodule
 
+module SLT(output[31:0] res,
+           output carryout, overflow,
+           input[31:0] a, b);
+    wire[31:0] mathres;
+
+    doMath mather (mathres, carryout, overflow, a, b, 1'b1, 1'b1);    
+
+    assign res = mathres[31];
+
+endmodule
+
 module doMath(output[31:0] res,
               output carryout, overflow,
               input[31:0] a, b,
-              input inverse, carryin
-);
+              input inverse, carryin);
 
     wire[31:0] paddedSub;
 
@@ -216,17 +222,36 @@ module testALU;
     wire[31:0] out;
     wire carryflag, overflag, zeroflag;
 
-    ALU alu (out, carryflag, overflag, zeroflag, a, b, selector);
+    // ALU alu (out, carryflag, overflag, zeroflag, a, b, selector);
     // doMath mather(out, carryflag, overflag, a, b, 1'b0, 1'b0);
+
+    SLT slt (out, carryflag, overflag, a, b);
 
     initial begin
         $dumpfile("testALU.vcd"); //dump info to create wave propagation later
         // $dumpvars(0, alu);
 
         $display("              operandA              |               operandB              |  selector  |                 output                | carryflag | overflag | zeroflag");
-
-        a = 32'b00000000000000000000000000000001; b = 32'd1; selector = 3'b000; #15000000
+        a = 32'd2147483647; b = 32'd2147483647; #300000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        a = 32'b10000000000000000000000000000000; b = 32'b10000000000000000000000000000000; #300000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        a = 32'b1; b = 32'b10000000000000000000000000000000; #300000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+
+
+        // a = 32'd4; b = 32'd2; selector = 3'b011; #1500
+        // $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        // a = 32'd102; b = 32'd7; selector = 3'b011; #1500
+        // $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        // a = 32'd1; b = 32'b10000000000000000000000000000001; selector = 3'b011; #1500
+        // $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        // a = 32'd4; b = 32'd2; selector = 3'b001; #1500
+        // $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        // a = 32'd102; b = 32'd7; selector = 3'b001; #1500
+        // $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        // a = 32'd1; b = 32'b10000000000000000000000000000001; selector = 3'b001; #1500
+        // $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
 
     end
 endmodule
