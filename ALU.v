@@ -38,8 +38,8 @@ module ALU(output reg[31:0] result,
     SLT slt (sltres, carryslt, overslt, a, b);
 
     always @(selector or a or b) begin
-      #2600
-      //longest possible delay in SLT is 2560
+      #2300
+      //longest possible delay in SLT is 2250
         case (muxindex)
           3'd0:  begin
             result = xres;
@@ -243,19 +243,12 @@ module testALU;
 
     ALU alu (out, carryflag, overflag, zeroflag, a, b, selector);
 
-    // SLT slt (out, carryflag, overflag, a, b);
-
     initial begin
         $dumpfile("testALU.vcd"); //dump info to create wave propagation later
         $dumpvars(0, alu);
 
         $display("              operandA              |               operandB              |  selector  |                 output                |                expected               | carryflag | overflag | zeroflag");
         $display("---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
-
-        // a = 32'b00000000001110000000000000000000; b = 32'b00000000001111000000000000000000; #5000
-        // $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-
-
 
         //Addition Tests
         $display("_____________________________________________________________________________________________Addition Tests_____________________________________________________________________________________________");
