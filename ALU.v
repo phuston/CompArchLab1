@@ -103,8 +103,7 @@ module ALUcontrolLUT(output reg[2:0] muxindex,
 endmodule
 
 module xOr32(output[31:0] xRes,
-             input[31:0] a, b
-);
+             input[31:0] a, b);
 // module to do bitwise xor with a for loop
     generate
         genvar j;
@@ -136,7 +135,7 @@ endmodule
 
 module nOr32(output[31:0] res,
              input[31:0] a, b,
-             input inverse );
+             input inverse);
 // module which does bitwise nand with a for loop, and then xors with inverse, in order to calculate or
     wire[31:0] norRes;
     wire[31:0] inverseExtended;
@@ -192,8 +191,7 @@ endmodule
 module fullAdder32bit(output[31:0] sum,  // 2's complement sum of a and b
                       output carryout, overflow,
                       input[31:0] a, b,     // First operand in 2's complement format
-                      input carryin
-);
+                      input carryin);
 // module that adds 32-bit numbers by calling 1-bit adders in a for loop and calculates overflow with xor
     wire [32:0] carry;
     assign carry[0] = carryin;
