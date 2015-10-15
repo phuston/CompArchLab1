@@ -38,8 +38,8 @@ module ALU(output reg[31:0] result,
     SLT slt (sltres, carryslt, overslt, a, b);
 
     always @(selector or a or b) begin
-      #1500
-      //TODO: determine longest possible delay and set this equal to that
+      #2600
+      //longest delay in SLT is 2560?
         case (muxindex)
           3'd0:  begin
             // $display("%b Selected",muxindex);
@@ -272,7 +272,7 @@ module testALU;
 
 
         //Addition Tests
-        $display("----------Addition Tests----------");
+        /*$display("----------Addition Tests----------");
         $display("---Simple Addition---");
         a = 32'b0; b = 32'h00000001; selector = 3'b000; #5000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
@@ -294,10 +294,10 @@ module testALU;
         a = 32'b10000100000101110001111110000111; b = 32'b10000000000101111101100110000111; selector = 3'b000; #5000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
         a = 32'b10000000000000000000000000000000; b = 32'b10000000000000000000000000000000; selector = 3'b000; #5000
-        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);*/
 
         //Subtraction Tests
-        $display("----------Subtraction Tests----------");
+        /*$display("----------Subtraction Tests----------");
         $display("---Simple---");
         a = 32'b0; b = 32'b1; selector = 3'b001; #5000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
@@ -326,23 +326,23 @@ module testALU;
         a = 32'b11111111111111111111111111111111; b = 32'b00000000000000000000000000000000; selector = 3'b010; #5000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
         a = 32'b00000000000001111000000000000110; b = 32'b00111100000000000110000000001100; selector = 3'b010; #5000
-        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);*/
 
         //SLT Tests
         $display("----------SLT Tests----------");
         a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b011; #5000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b11111111111111111111111111111111; b = 32'b11111111111111111111111111111111; selector = 3'b011; #5000
+        /*a = 32'b11111111111111111111111111111111; b = 32'b11111111111111111111111111111111; selector = 3'b011; #5000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
         a = 32'b00000000000000001111000000000000; b = 32'b00000000000000001110111111111111; selector = 3'b011; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
         a = 32'b00000000000000001111000000000000; b = 32'b00000000000000001111000000000001; selector = 3'b011; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
         a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b011; #10000
-        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);*/
 
         //AND Tests
-        $display("----------AND Tests----------");
+        /*$display("----------AND Tests----------");
         a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b100; #5000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
         a = 32'b11111111111111110000000000000000; b = 32'b11111111111111110000000000000000; selector = 3'b100; #5000
@@ -377,7 +377,7 @@ module testALU;
         a = 32'b11111111111111110000000000000000; b = 32'b00000000000000001111111111111111; selector = 3'b111; #5000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
         a = 32'b11010100101000101110011100010010; b = 32'b00101001100101001010111001001011; selector = 3'b111; #5000
-        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);*/
 
     end
 endmodule
