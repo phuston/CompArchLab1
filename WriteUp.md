@@ -27,21 +27,29 @@ In the process of implementing our ALU, we made several interesting design choic
 
 ### Timing Analysis
 
-- AND
+###### AND and NAND
+Bitwise AND and NAND have the same delay since they are outputted from the same module:
+- First there are 32 NAND gates for a delay of 32*10 = 320
+- Then there are 32 XOR gates for a delay of 32*10 = 320, for a total delay of __640__.
 
-- NAND
+###### OR and NOR
+Bitwise OR and NOR have the same delay since they are outputted from the same module:
+- First there are 32 NOR gates for a delay of 32*10 = 320
+- Then there are 32 XOR gates for a delay of 32*10 = 320, for a total delay of __640__.
 
-- OR
+###### XOR
+Bitwise Xor is simply 32 XOR gates for a total delay of 32*10 = __320__.
 
-- NOR
+###### ADD, SUB, SLT
+These three gates have the same delay since they are outputted from the same module:
+- First we XOR our B input with our sign-extended inverse input, for a delay of 32*10 = 320
+- A single-bit adder's maximum delay is through a XOR, AND, and OR gate, for a delay of (10+20+20)*32 = 1600
+- The overflow check is one XOR gate for a delay of 10, bringing the total to __1930__
 
-- XOR
+###### Zero Flag
+The zero flag check is a 32-bitwise NOR gate, for a total delay of 32*10 = __320__.
 
-- ADD
-
-- SUB
-
-- SLT
+Thus the largest delay of our ALU is an addition, subtraction, or simple-less than, which then passes through the zero flag,for a total delay of **2250**.
 
 
 ### Work Plan Relection
