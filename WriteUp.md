@@ -99,9 +99,9 @@ Task  |     Time Spent
 ---|---
 Construct ADD SUB SLT           |  2h30m
 Construct AND NAND OR NOR XOR   |  0h20m
-Construct ALU LUT			    |  1h00m
-Construct top level ALU module  |  1h00m
-Construct Test Bench, and debug |  3h00m
+Construct ALU LUT			    |  0h30m
+Construct top level ALU module  |  0h40m
+Construct Test Bench, and debug |  3h50m
 Analyze Worst Propagation Delay |  0h15m
 Create writeup.md               |  1h30m
 
