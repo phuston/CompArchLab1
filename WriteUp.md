@@ -108,11 +108,3 @@ Create writeup.md               |  1h30m
 We planned on spending a total of 10h40m on this lab, and we actually spent 9h35m.
 Designing our ALU went fairly smoothly, but we made the mistake of translating it all into verilog at once, and not testing incrementally.
 As a result, we spent the largest section of our time debugging as we created our test bench.
-
-TODO:
-
-	- Write test benches
-		> AND, NAND
-		> OR, NOR, XOR
-		> ADD, SUB
-		> SLT
