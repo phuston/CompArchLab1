@@ -37,6 +37,7 @@ module ALU(output reg[31:0] result,
     SLT slt (sltres, carryslt, overslt, a, b);
     always @(selector or a or b) begin
       #320
+      //TODO: determine longest possible delay and set this equal to that
         case (muxindex)
           3'd0:  begin
             $display("%b Selected",muxindex);
