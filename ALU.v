@@ -36,16 +36,16 @@ module ALU(output[31:0] out,
     xOr32 xor32 (xres, a, b);
     nAnd32 nand32 (nares, a, b, inverse);
     nOr32 nor32 (nores, a, b, inverse);
-    doMath mather (mathres, carryout, overflow, a, b, inverse, carryin);
-    SLT slt (sltres, carryout, overflow, a, b);
+    doMath mather (mathres, carrymath, overmath, a, b, inverse, carryin);
+    SLT slt (sltres, carryslt, overslt, a, b);
 
     always @(muxindex) begin
         case (muxindex)
           3'd0:  begin assign result = xres; assign carryflag = 0; assign overflag = 0; end
           3'd1:  begin assign result = nares; assign carryflag = 0; assign overflag = 0; end
           3'd2:  begin assign result = nores; assign carryflag = 0; assign overflag = 0; end
-          3'd3:  begin assign result = mathres; assign carryflag = carryout; assign overflag = overflow; end
-          3'd4:  begin assign result = sltres; assign carryflag = 0; assign overflag = overflow; end
+          3'd3:  begin assign result = mathres; assign carryflag = carrymath; assign overflag = overfmath; end
+          3'd4:  begin assign result = sltres; assign carryflag = 0; assign overflag = overslt; end
         endcase
     end
     assign out = result;
