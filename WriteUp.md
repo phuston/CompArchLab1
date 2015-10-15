@@ -64,9 +64,35 @@ Thus the largest delay of our ALU is an addition, subtraction, or simple-less th
 
 ### Work Plan Relection
 
-- Include our work_plan.txt probably, and how that turned out, what took longer than expected, what took shorter than expected
+Our finalized work-plan:
 
+Task      | Time Estimate | Date of Completion
+---|---|---
+Design ALU operations AND NAND OR NOR XOR on whiteboard          |   0h30m       |     10.7.15
+Design ALU operations ADD SUB SLT         on whiteboard          |   1h30m       |     10.9.15
+Design test bench for each ALU operation                          |   1h30m       |     10.9.15
+Write verilog code for ALU                                        |   2h00m       |     10.9.15
+Analyze timing for ALU                                            |   1h00m       |     10.10.15
+Create 'Implementation' writeup section                           |   1h00m       |     10.10.15
+Create 'Test Results' writeup section                             |   1h00m       |     10.11.15
+Create 'Timing Analysis' writeup section                          |   1h00m       |     10.11.15
+Review work plan reflection                                       |   0h40m       |     10.12.15
 
+The actual time it took us to complete the tasks:
+
+Task  |     Time Spent
+---|---
+Construct ADD SUB SLT           |  2h30m
+Construct AND NAND OR NOR XOR   |  0h20m
+Construct ALU LUT			    |  1h00m
+Construct top level ALU module  |  1h00m
+Construct Test Bench, and debug |  3h00m
+Analyze Worst Propagation Delay |  0h15m
+Create writeup.md               |  1h30m
+
+We planned on spending a total of 10h40m on this lab, and we actually spent 9h35m.
+Designing our ALU went fairly smoothly, but we made the mistake of translating it all into verilog at once, and not testing incrementally.
+As a result, we spent the largest section of our time debugging as we created our test bench.
 
 TODO:
 
@@ -75,8 +101,3 @@ TODO:
 		> OR, NOR, XOR
 		> ADD, SUB
 		> SLT
-	- Analyze propagation delays
-		> AND, NAND
-		> OR, NOR, XOR
-		> SLT
-	- Create block diagram of ALU

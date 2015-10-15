@@ -1,12 +1,13 @@
 Lab 1 Work Plan
 
            Task                                                      | Time Estimate | Date of Completion
-1a. Design ALU operations AND NAND OR NOR XOR on whiteboard          |   0h30m       |     10.7.15
-1b. Design ALU operations ADD SUB SLT         on whiteboard          |   1h30m       |     10.9.15
-2. Design test bench for each ALU operation                          |   1h30m       |     10.9.15
-3. Write verilog code for ALU                                        |   2h00m       |     10.9.15
-4. Analyze timing for ALU                                            |   1h00m       |     10.10.15
-5. Create 'Implementation' writeup section                           |   1h00m       |     10.10.15
-6. Create 'Test Results' writeup section                             |   1h00m       |     10.11.15
-7. Create 'Timing Analysis' writeup section                          |   1h00m       |     10.11.15
-8. Review work plan reflection                                       |   0h40m       |     10.12.15
+           ---|---|---
+Design ALU operations AND NAND OR NOR XOR on whiteboard          |   0h30m       |     10.7.15
+Design ALU operations ADD SUB SLT         on whiteboard          |   1h30m       |     10.9.15
+Design test bench for each ALU operation                          |   1h30m       |     10.9.15
+Write verilog code for ALU                                        |   2h00m       |     10.9.15
+Analyze timing for ALU                                            |   1h00m       |     10.10.15
+Create 'Implementation' writeup section                           |   1h00m       |     10.10.15
+Create 'Test Results' writeup section                             |   1h00m       |     10.11.15
+Create 'Timing Analysis' writeup section                          |   1h00m       |     10.11.15
+Review work plan reflection                                       |   0h40m       |     10.12.15
