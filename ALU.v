@@ -102,18 +102,6 @@ module ALUcontrolLUT(output reg[2:0] muxindex,
     end
 endmodule
 
-module not32(output[31:0] nRes,
-             input[31:0] a
-);
-// module to do bitwise not with a for loop
-    generate
-        genvar i;
-        for (i=0; i<32; i=i+1) begin: notblock
-            `NOT not32 (nRes[i], a[i]);
-        end
-    endgenerate
-endmodule
-
 module xOr32(output[31:0] xRes,
              input[31:0] a, b
 );
