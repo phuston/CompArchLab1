@@ -1,4 +1,4 @@
-#1 Lab 1 Results
+#Lab 1 Results
 ##### Patrick Huston, Nur Shlapobersky, Kai Levy
 
 ### Implementation
@@ -25,24 +25,39 @@ In the process of implementing our ALU, we made several interesting design choic
 - SLT Test Bench Results
 
 ###### ADD
-For our addition, we decided that we should test at least two cases for both the carryout flag and overflow flag: Two 'Simple addition' which set neither flag. Two 'Carryout' tests which set the only the carryout-- which would happen when adding something to a negative number such that it would add to the most significant bit, but remain negative. Two 'Overflow' cases, which set only the overflow-- a case that resulted in adding two large positive number, such that the output would overflow into negative numbers. Finally, two 'Carryout and Overflow' cases, which set both carryout and overflow, by adding two largely negative numbers such that the result would have a carryout and overflow into positive numbers.
+For our addition, we decided that we should test at least two cases for both the carryout flag and overflow flag: Two 'Simple addition' which set neither flag.
+Two 'Carryout' tests which set the only the carryout-- which would happen when adding something to a negative number such that it would add to the most significant bit, but remain negative.
+Two 'Overflow' cases, which set only the overflow-- a case that resulted in adding two large positive number, such that the output would overflow into negative numbers.
+Finally, two 'Carryout and Overflow' cases, which set both carryout and overflow, by adding two largely negative numbers such that the result would have a carryout and overflow into positive numbers.
 
 ###### SUB
-The subtraction tests were chosen to the same guidelines as the addition ones. Because subtraction is equivalent to addition, but with a negative second operand, the tests were basically the same as addition, but with the 'b' value set to a negative number on the same magnitude.
+The subtraction tests were chosen to the same guidelines as the addition ones.
+Because subtraction is equivalent to addition, but with a negative second operand, the tests were basically the same as addition, but with the 'b' value set to a negative number on the same magnitude.
 
 ###### XOR
-The XOR module is relatively simple: a series of 32 XORs on each bit. Because of this, we know that if one bit works, the rest should work. As a result, our testing was composed of one case that would activate the 0 flag, and two other cases that we could easily verify were correct
+The XOR module is relatively simple: a series of 32 XORs on each bit.
+Because of this, we know that if one bit works, the rest should work.
+As a result, our testing was composed of one case that would activate the 0 flag, and two other cases that we could easily verify were correct.
 
 ###### SLT
+To verify our SLT module worked correctly, we tested the edge cases: a = b + 1, a = b, and a = b - 1.
+We assumed that if these cases worked properly, and if our other math modules worked correctly, then these tests were adequate.
+We also tested an overflow case, where the output of the SLT module should be ignored.
 
 ###### AND
-The AND module simply built on the NAND module by running a bitwise NOT on the output. Because of this, we know that if one bit works, the rest should work. As a result, our testing was composed of one case that would activate the 0 flag, and two other cases that we could easily verify were correct
+The AND module simply built on the NAND module by running a bitwise NOT on the output.
+Because of this, we know that if one bit works, the rest should work.
+As a result, our testing was composed of one case that would activate the 0 flag, and two other cases that we could easily verify were correct.
 
 ###### NAND
-The NAND module is relatively simple: a series of 32 NANDs on each bit. Because of this, we know that if one bit works, the rest should work. As a result, our testing was composed of one case that would activate the 0 flag, and two other cases that we could easily verify were correct
+The NAND module is relatively simple: a series of 32 NANDs on each bit.
+Because of this, we know that if one bit works, the rest should work.
+As a result, our testing was composed of one case that would activate the 0 flag, and two other cases that we could easily verify were correct.
 
 ###### NOR
-The NOR module is relatively simple: a series of 32 NORs on each bit. Because of this, we know that if one bit works, the rest should work. As a result, our testing was composed of one case that would activate the 0 flag, and two other cases that we could easily verify were correct
+The NOR module is relatively simple: a series of 32 NORs on each bit.
+Because of this, we know that if one bit works, the rest should work.
+As a result, our testing was composed of one case that would activate the 0 flag, and two other cases that we could easily verify were correct.
 
 ###### OR
 The OR module simply built on the NOR module by running a bitwise NOT on the output. Because of this, we know that if one bit works, the rest should work. As a result, our testing was composed of one case that would activate the 0 flag, and two other cases that we could easily verify were correct
