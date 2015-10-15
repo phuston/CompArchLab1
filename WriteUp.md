@@ -1,51 +1,52 @@
-## Lab 1 Results
+#1 Lab 1 Results
 ##### Patrick Huston, Nur Shlapobersky, Kai Levy
 
-1. Implementation
+### Implementation
 
-	In the process of implementing our ALU, we made several interesting design choices to improve efficiency, speed, and decrease the area of the unit.
+In the process of implementing our ALU, we made several interesting design choices to improve efficiency, speed, and decrease the area of the unit.
 
-	- Our LUTcontrol module takes in a 3-bit selector value and outputs 3 wires: an inverse, carryin, and muxIndex (which controls our large multiplexor's output).
-		> The inverse output controls the 'Math' module's switching between addition, subtraction, and slt, as well as our bitwise nand and nor gates to and and or gates
-	- Constructing a 'Math' module to implement both addition and subtraction, as well part of the 'Simple-Less-Than' module
-	- Handling and
+- Our LUTcontrol module takes in a 3-bit selector value and outputs 3 wires: an inverse, carryin, and muxIndex.
+- Our AND and NAND gates are defined by the same module. We use the 'inverse' input that is determined by our 'LUTcontrol' to control which of the two operations we perform.
+- Our OR and NOR gates operate with the same structure.
+- Our addition, subtraction, and part of simple-less-than operations are all implemented by a 'Math' module
+	- Inverse is 1 for subtraction and simple-less-than
+	- Carryin is 1 for subtraction
+- Our simple-less-than takes the output of our math module and then checks whether the most significant bit is zero.
+![A block diagram of our ALU's main components](ALUDiagram.png)
 
-	![A block diagram of our ALU's main components](ALUDiagram.png)
-	- Block diagrams of all ALU components.
+### Test Results
 
-2. Test Results
+- AND, NAND Test Bench Results
 
-	- AND, NAND Test Bench Results
+- OR, NOR Test Bench Results
 
-	- OR, NOR Test Bench Results
+- ADD, SUB Test Bench Results
 
-	- ADD, SUB Test Bench Results
-
-	- SLT Test Bench Results
-
-
-3. Timing Analysis
-
-	- AND
-
-	- NAND
-
-	- OR
-
-	- NOR
-
-	- XOR
-
-	- ADD
-
-	- SUB
-
-	- SLT
+- SLT Test Bench Results
 
 
-4. Work Plan Relection
+### Timing Analysis
 
-	- Include our work_plan.txt probably, and how that turned out, what took longer than expected, what took shorter than expected
+- AND
+
+- NAND
+
+- OR
+
+- NOR
+
+- XOR
+
+- ADD
+
+- SUB
+
+- SLT
+
+
+### Work Plan Relection
+
+- Include our work_plan.txt probably, and how that turned out, what took longer than expected, what took shorter than expected
 
 
 
