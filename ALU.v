@@ -34,7 +34,9 @@ module ALU(output reg[31:0] result,
     nAnd32 nand32 (nares, a, b, inverse);
     nOr32 nor32 (nores, a, b, inverse);
     doMath mather (mathres, carrymath, overmath, a, b, inverse, carryin);
+    // SLT slt (sltres,  mathres);
     SLT slt (sltres, carryslt, overslt, a, b);
+
     always @(selector or a or b) begin
       #320
       //TODO: determine longest possible delay and set this equal to that
@@ -67,7 +69,7 @@ module ALU(output reg[31:0] result,
             $display("%b Selected",muxindex);
             result = sltres;
             carryflag = 1'b0;
-            overflag = overslt;
+            overflag = overmath;
             end
           default:
             $display("ALU error: %b", muxindex);
@@ -178,6 +180,13 @@ module SLT(output[31:0] res,
     assign res = mathres[31];
 
 endmodule
+
+// module SLT(output[31:0] res,
+//            // output carryout, overflow,
+//            input[31:0] mathres);
+
+//     res = {mathres[31], 31'b00000000000000000000000000000000}
+// endmodule
 
 module doMath(output[31:0] res,
               output carryout, overflow,
@@ -311,9 +320,13 @@ module testALU;
 
         //SLT Tests
         $display("----------SLT Tests----------");
-        a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b011; #10000
-        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
         a = 32'b11111111111111111111111111111111; b = 32'b11111111111111111111111111111111; selector = 3'b011; #10000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        a = 32'b00000000000000001111000000000000; b = 32'b00000000000000001110111111111111; selector = 3'b011; #10000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        a = 32'b00000000000000001111000000000000; b = 32'b00000000000000001111000000000001; selector = 3'b011; #10000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b011; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
 
         //AND Tests
