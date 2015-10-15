@@ -15,22 +15,19 @@
 `define cNOR  3'd6
 `define cOR   3'd7
 
-//TODO:
-//define zero flag in top level module
-//make mathControl (decoder? mux?)
-//make top level ALU Module
 
-module ALU(output[31:0] out,
-           output reg carryflag, overflag,
-           output wire zero,
+module ALU(output reg[31:0] result,
+           output reg carryflag,
+           output reg overflag,
+           output zero,
            input[31:0] a, b,
            input[2:0] selector
 );
     wire[2:0] muxindex;
     wire inverse, carryin, carryout;
-    reg[31:0] result;
+    /*reg[31:0] result;*/
     wire[31:0] xres, nares, nores, mathres, sltres;
-
+    reg carryflag2, overflag2;
     ALUcontrolLUT controlLUT (muxindex, inverse, carryin, selector);
 
     xOr32 xor32 (xres, a, b);
@@ -38,17 +35,43 @@ module ALU(output[31:0] out,
     nOr32 nor32 (nores, a, b, inverse);
     doMath mather (mathres, carrymath, overmath, a, b, inverse, carryin);
     SLT slt (sltres, carryslt, overslt, a, b);
-
-    always @(muxindex) begin
+    always @(selector or a or b) begin
+      #320
         case (muxindex)
-          3'd0:  begin assign result = xres; assign carryflag = 0; assign overflag = 0; end
-          3'd1:  begin assign result = nares; assign carryflag = 0; assign overflag = 0; end
-          3'd2:  begin assign result = nores; assign carryflag = 0; assign overflag = 0; end
-          3'd3:  begin assign result = mathres; assign carryflag = carrymath; assign overflag = overfmath; end
-          3'd4:  begin assign result = sltres; assign carryflag = 0; assign overflag = overslt; end
+          3'd0:  begin
+            $display("%b Selected",muxindex);
+            result = xres;
+            carryflag = 1'b0;
+            overflag = 1'b0;
+            end
+          3'd1:  begin
+            $display("%b Selected",muxindex);
+            result = nares;
+            carryflag = 1'b0;
+            overflag = 1'b0;
+            end
+          3'd2:  begin
+            $display("%b Selected",muxindex);
+            result = nores;
+            carryflag = 1'b0;
+            overflag = 1'b0;
+            end
+          3'd3:  begin
+            $display("%b Selected",muxindex);
+            result = mathres;
+            carryflag = carrymath;
+            overflag = overmath;
+            end
+          3'd4:  begin
+            $display("%b Selected",muxindex);
+            result = sltres;
+            carryflag = 1'b0;
+            overflag = overslt;
+            end
+          default:
+            $display("ALU error: %b", muxindex);
         endcase
     end
-    assign out = result;
     zeroTest zertest (zero, result);
 endmodule
 
@@ -233,9 +256,9 @@ module testALU;
         //Addition Tests
         $display("----------Addition Tests----------");
         $display("---Simple Addition---");
-        a = 32'b0; b = 32'b0; selector = 3'b000; #3000
+        a = 32'b0; b = 32'h00000001; selector = 3'b000; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b01001000001110000000100001100001; b = 32'b11000000110000010011000001001000; selector = 3'b000; #3000
+        a = 32'b01001000001110000000100001100001; b = 32'b10000000110000010011000001001000; selector = 3'b000; #3000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
         $display("---Carryout---");
         a = 32'b11001000001110000000100001100001; b = 32'b11001000001110000000100001100001; selector = 3'b000; #3000
@@ -243,14 +266,14 @@ module testALU;
         a = 32'b11111111111111111111111111111111; b = 32'b11111111111111111111111111111111; selector = 3'b000; #3000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
         $display("---Overflow---");
-        a = 32'b01111111111111111111111111111111; b = 32'b01111111111111111111111111111111; selector = 3'b000; #3000
+        a = 32'b01111111111111111111111111111111; b = 32'b01111111111111111111111111111111; selector = 3'b000; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b01111111100101110001111110000111; b = 32'b00111111111111111111111100000000; selector = 3'b000; #3000
+        a = 32'b01111111100101110001111110000111; b = 32'b00111111111111111111111100000000; selector = 3'b000; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
         $display("---Carryout and Overflow---");
-        a = 32'b10000100000101110001111110000111; b = 32'b10000000000101111101100110000111; selector = 3'b000; #3000
+        a = 32'b10000100000101110001111110000111; b = 32'b10000000000101111101100110000111; selector = 3'b000; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b10000000000000000000000000000000; b = 32'b10000000000000000000000000000000; selector = 3'b000; #3000
+        a = 32'b10000000000000000000000000000000; b = 32'b10000000000000000000000000000000; selector = 3'b000; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
 
         //Subtraction Tests
@@ -261,71 +284,73 @@ module testALU;
         a = 32'b11001000001110000000100001100001; b = 32'b11111000110000010011000001001000; selector = 3'b001; #3000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
         $display("---Carryout---");
-        a = 32'b11001000001110000000100001100001; b = 32'b11001000001110000000100001100001; selector = 3'b001; #3000
+        a = 32'b11001000001110000000100001100001; b = 32'b11001000001110000000100001100001; selector = 3'b001; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b11111111111111111111111111111111; b = 32'b11111111111111111111111111111101; selector = 3'b001; #3000
+        a = 32'b11111111111111111111111111111111; b = 32'b11111111111111111111111111111101; selector = 3'b001; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
         $display("---Overflow---");
-        a = 32'b01111111111111111111111111111111; b = 32'b10000000000000000000000111111111; selector = 3'b001; #3000
+        a = 32'b01111111111111111111111111111111; b = 32'b10000000000000000000000111111111; selector = 3'b001; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b00000000000101110001111110000111; b = 32'b10000000000000000000000000000000; selector = 3'b001; #3000
+        a = 32'b00000000000101110001111110000111; b = 32'b10000000000000000000000000000000; selector = 3'b001; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
         $display("---Carryout and Overflow---");
-        a = 32'b10000100000101110001111110000111; b = 32'b00111111111111111111111100000000; selector = 3'b001; #3000
+        a = 32'b10000100000101110001111110000111; b = 32'b00111111111111111111111100000000; selector = 3'b001; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b10000000000000000000000000000000; b = 32'b00000000000000000000000000000001; selector = 3'b001; #3000
+        a = 32'b10000000000000000000000000000000; b = 32'b00000000000000000000000000000001; selector = 3'b001; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
 
         //XOR Tests
         $display("----------XOR Tests----------");
-        a = 32'b00000000000000000000000000000000; b = 32'b00000000000000000000000000000000; selector = 3'b010; #3000
+        a = 32'b00000000000000000000000000000000; b = 32'b00000000000000000000000000000000; selector = 3'b010; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b11111111111111111111111111111111; b = 32'b00000000000000000000000000000000; selector = 3'b010; #3000
+        a = 32'b11111111111111111111111111111111; b = 32'b00000000000000000000000000000000; selector = 3'b010; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b00000000000001111000000000000110; b = 32'b00111100000000000110000000001100; selector = 3'b010; #3000
+        a = 32'b00000000000001111000000000000110; b = 32'b00111100000000000110000000001100; selector = 3'b010; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
 
         //SLT Tests
         $display("----------SLT Tests----------");
-        a = 32'd2; b = 32'b1; selector = 3'b011; #3000
+        a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b011; #10000
+        $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
+        a = 32'b11111111111111111111111111111111; b = 32'b11111111111111111111111111111111; selector = 3'b011; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
 
         //AND Tests
         $display("----------AND Tests----------");
-        a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b100; #3000
+        a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b100; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b11111111111111110000000000000000; b = 32'b11111111111111110000000000000000; selector = 3'b100; #3000
+        a = 32'b11111111111111110000000000000000; b = 32'b11111111111111110000000000000000; selector = 3'b100; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b11010100101000101110011100010010; b = 32'b00101001100101001010111001001011; selector = 3'b100; #3000
+        a = 32'b11010100101000101110011100010010; b = 32'b00101001100101001010111001001011; selector = 3'b100; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
 
 
         //NAND Tests
         $display("----------NAND Tests----------");
-        a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b101; #3000
+        a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b101; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b11111111111111110000000000000000; b = 32'b11111111111111110000000000000000; selector = 3'b101; #3000
+        a = 32'b11111111111111110000000000000000; b = 32'b11111111111111110000000000000000; selector = 3'b101; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b11010100101000101110011100010010; b = 32'b00101001100101001010111001001011; selector = 3'b101; #3000
+        a = 32'b11010100101000101110011100010010; b = 32'b00101001100101001010111001001011; selector = 3'b101; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
 
 
         // NOR Tests
         $display("----------NOR Tests----------");
-        a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b110; #3000
+        a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b110; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b11111111111111110000000000000000; b = 32'b00000000000000001111111111111111; selector = 3'b110; #3000
+        a = 32'b11111111111111110000000000000000; b = 32'b00000000000000001111111111111111; selector = 3'b110; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b11010100101000101110011100010010; b = 32'b00101001100101001010111001001011; selector = 3'b110; #3000
+        a = 32'b11010100101000101110011100010010; b = 32'b00101001100101001010111001001011; selector = 3'b110; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
 
         //OR Tests
         $display("----------OR Tests----------");
-        a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b111; #3000
+        a = 32'b01010101010101010101010101010101; b = 32'b10101010101010101010101010101010; selector = 3'b111; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b11111111111111110000000000000000; b = 32'b00000000000000001111111111111111; selector = 3'b111; #3000
+        a = 32'b11111111111111110000000000000000; b = 32'b00000000000000001111111111111111; selector = 3'b111; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
-        a = 32'b11010100101000101110011100010010; b = 32'b00101001100101001010111001001011; selector = 3'b111; #3000
+        a = 32'b11010100101000101110011100010010; b = 32'b00101001100101001010111001001011; selector = 3'b111; #10000
         $display("  %b  |  %b   |    %b     |    %b   |     %b     |    %b     |     %b    ", a, b, selector, out, carryflag, overflag, zeroflag);
 
     end
