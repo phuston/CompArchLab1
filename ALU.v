@@ -44,7 +44,7 @@ module ALU(output[31:0] out,
           3'd0:  begin assign result = xres; assign carryflag = 0; assign overflag = 0; end
           3'd1:  begin assign result = nares; assign carryflag = 0; assign overflag = 0; end
           3'd2:  begin assign result = nores; assign carryflag = 0; assign overflag = 0; end
-          3'd3:  begin assign result = mathres; assign carryflag = carrymath; assign overflag = overfmath; end
+          3'd3:  begin assign result = mathres; assign carryflag = carrymath; assign overflag = overmath; end
           3'd4:  begin assign result = sltres; assign carryflag = 0; assign overflag = overslt; end
         endcase
     end
