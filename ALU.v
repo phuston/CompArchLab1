@@ -23,9 +23,10 @@ module ALU(output reg[31:0] result,
            input[31:0] a, b,
            input[2:0] selector
 );
+// module that calculates result to various operations and sends back correct one based on
+// mux index
     wire[2:0] muxindex;
     wire inverse, carryin, carryout;
-    /*reg[31:0] result;*/
     wire[31:0] xres, nares, nores, mathres, sltres;
     reg carryflag2, overflag2;
     ALUcontrolLUT controlLUT (muxindex, inverse, carryin, selector);
@@ -34,39 +35,33 @@ module ALU(output reg[31:0] result,
     nAnd32 nand32 (nares, a, b, inverse);
     nOr32 nor32 (nores, a, b, inverse);
     doMath mather (mathres, carrymath, overmath, a, b, inverse, carryin);
-    // SLT slt (sltres,  mathres);
     SLT slt (sltres, carryslt, overslt, a, b);
 
     always @(selector or a or b) begin
       #2600
-      //longest delay in SLT is 2560?
+      //longest possible delay in SLT is 2560
         case (muxindex)
           3'd0:  begin
-            // $display("%b Selected",muxindex);
             result = xres;
             carryflag = 1'b0;
             overflag = 1'b0;
             end
           3'd1:  begin
-            // $display("%b Selected",muxindex);
             result = nares;
             carryflag = 1'b0;
             overflag = 1'b0;
             end
           3'd2:  begin
-            // $display("%b Selected",muxindex);
             result = nores;
             carryflag = 1'b0;
             overflag = 1'b0;
             end
           3'd3:  begin
-            // $display("%b Selected",muxindex);
             result = mathres;
             carryflag = carrymath;
             overflag = overmath;
             end
           3'd4:  begin
-            // $display("%b Selected",muxindex);
             result = sltres;
             carryflag = 1'b0;
             overflag = overmath;
@@ -80,7 +75,7 @@ endmodule
 
 module zeroTest(output zeroflag,
                 input[31:0] result);
-
+// module that nors all result bits to find if any is not 0
     `NOR zerOr(zeroflag, result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],
       result[8],result[9],result[10],result[11],result[12],result[13],result[14],result[15],result[16],
       result[17],result[18],result[19],result[20],result[21],result[22],result[23],result[24],result[25],
@@ -92,7 +87,7 @@ module ALUcontrolLUT(output reg[2:0] muxindex,
            output reg inverse,
            output reg carryin,
            input[2:0] ALUcommand);
-
+// module that looks up a mux index, inverse, and carryin based on the desired operation
     always @(ALUcommand) begin
         case (ALUcommand)
           `cXOR:  begin assign muxindex = 3'd0; assign inverse=0; assign carryin = 0; end
@@ -110,6 +105,7 @@ endmodule
 module not32(output[31:0] nRes,
              input[31:0] a
 );
+// module to do bitwise not with a for loop
     generate
         genvar i;
         for (i=0; i<32; i=i+1) begin: notblock
@@ -121,6 +117,7 @@ endmodule
 module xOr32(output[31:0] xRes,
              input[31:0] a, b
 );
+// module to do bitwise xor with a for loop
     generate
         genvar j;
         for (j=0; j<32; j=j+1) begin: xorblock
@@ -132,7 +129,7 @@ endmodule
 module nAnd32(output[31:0] res,
               input[31:0] a, b,
               input inverse);
-
+// module which does bitwise nand with a for loop, and then xors with inverse, in order to calculate and
     wire[31:0] nandRes;
     wire[31:0] inverseExtended;
 
@@ -149,11 +146,10 @@ module nAnd32(output[31:0] res,
 
 endmodule
 
-
 module nOr32(output[31:0] res,
              input[31:0] a, b,
              input inverse );
-
+// module which does bitwise nand with a for loop, and then xors with inverse, in order to calculate or
     wire[31:0] norRes;
     wire[31:0] inverseExtended;
 
@@ -173,6 +169,7 @@ endmodule
 module SLT(output[31:0] res,
            output carryout, overflow,
            input[31:0] a, b);
+// module which calls math module with inverse and carryin, then grabs most significant bit in order to calculate less than
     wire[31:0] mathres;
 
     doMath mather (mathres, carryout, overflow, a, b, 1'b1, 1'b1);
@@ -192,7 +189,7 @@ module doMath(output[31:0] res,
               output carryout, overflow,
               input[31:0] a, b,
               input inverse, carryin);
-
+// module that xors b with inverse to invert it if necessary, then calls 32 bit adder to calculate total
     wire[31:0] paddedSub;
 
     signExtend extender(paddedSub, inverse);
@@ -209,7 +206,7 @@ module fullAdder32bit(output[31:0] sum,  // 2's complement sum of a and b
                       input[31:0] a, b,     // First operand in 2's complement format
                       input carryin
 );
-
+// module that adds 32-bit numbers by calling 1-bit adders in a for loop and calculates overflow with xor
     wire [32:0] carry;
     assign carry[0] = carryin;
 
@@ -225,6 +222,7 @@ module fullAdder32bit(output[31:0] sum,  // 2's complement sum of a and b
 endmodule
 
 module bitFullAdder(out, carryout, a, b, carryin);
+// module that adds two single bits
     output out, carryout; //declare vars
     input a, b, carryin;
     wire AxorB, fullAnd, AandB;
@@ -238,6 +236,7 @@ module bitFullAdder(out, carryout, a, b, carryin);
 endmodule
 
 module signExtend(signExtendedInverse, inverse);
+// module that sign extends a number
     output[31:0] signExtendedInverse;
     input inverse;
 
@@ -250,6 +249,7 @@ module signExtend(signExtendedInverse, inverse);
 endmodule
 
 module testALU;
+// testing module
     reg [31:0] a, b;
     reg [2:0] selector;
     wire[31:0] out;
